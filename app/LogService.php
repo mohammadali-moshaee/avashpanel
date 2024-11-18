@@ -15,12 +15,9 @@ class LogService
 
     public static function createLog($action, $description, $model = null)
     {
-        
         $userid;
-
-        if($action == 'ورود'){
-            $userid = $model->id;
-        }elseif($action == 'ورود ناموفق'){
+        
+        if($model == 'danger login'){
             $userid = null;
         }else{
             $userid = Auth()->user()->id;

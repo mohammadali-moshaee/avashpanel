@@ -23,6 +23,7 @@
                 <thead>
                   <tr>
                     <th>#</th>
+                    <th> کاربر </th>
                     <th> آیپی </th>
                     <th> ماژول </th>
                     <th> شماره آیتم </th>
@@ -54,16 +55,12 @@ $(document).ready(function() {
         ajax: "{{ route('admin.logs.dataTable') }}",
         columns: [
             { data: 'id', name: 'id' },
-            { data: 'title', name: 'title' },
-            { data: 'categories', name: 'categories' },
-            { data: 'published', name: 'published' },
+            { data: 'user_id', name: 'user_id' },
+            { data: 'ip_address', name: 'ip_address' },
+            { data: 'model_type', name: 'model_type' },
+            { data: 'model_id', name: 'model_id' },
+            { data: 'description', name: 'description' },
             { data: 'created_at', name: 'created_at' },
-            {
-                data: 'action', 
-                name: 'action', 
-                orderable: false, 
-                searchable: false
-            }
         ],
         language: {
             url: "/admin-assets/assets/js/DataTablePersian.json"

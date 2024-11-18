@@ -24,6 +24,12 @@ class LoginController extends Controller
 
     public function logout()
     {
+        $user = User::findOrFail(Auth()->user()->id);
+        LogService::createLog(
+            'خروج سامانه',
+            'کاربر ' . Auth()->user()->username . 'از سامانه خارج شد.',
+            $user,
+        );
         Auth::logout();
         return redirect('/admin/login')->with('success', 'Logged out successfully!');
     }
@@ -51,7 +57,7 @@ class LoginController extends Controller
         LogService::createLog(
             'ورود ناموفق',
             'کاربر ' . $request->username . ' تلاش جهت ورود به پنل !',
-            $user
+            'danger login'
         );
         return back()->withErrors(['email' => 'نام کاربری یا کلمه عبور اشتباه می باشد !']);
     }
