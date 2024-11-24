@@ -46,6 +46,10 @@ class LogController extends Controller
                 $module = '<span class="badge bg-info"> ماژول مطالب </span>';
             }elseif($model->model_type == 'danger login'){
                 $module = '<span class="badge bg-danger">لاگین خطرناک</span>';
+            }elseif($model->model_type == 'App\Models\Admin\SocialPage'){
+                $module = '<span class="badge bg-info"> ماژول صفحات اجتماعی</span>';
+            }elseif($model->model_type == 'App\Models\Admin\ContactInfo'){
+                $module = '<span class="badge bg-info"> ماژول تماس با ما </span>';
             }
             return $module;
         })

@@ -32,12 +32,12 @@
       </li>
       @endcan
       <li>
-        <a href="components-breadcrumbs.html">
+        <a href="{{ route('admin.social-pages') }}">
           <i class="bi bi-circle"></i><span>صفحات اجتماعی</span>
         </a>
       </li>
       <li>
-        <a href="components-buttons.html">
+        <a href="{{ route('admin.contact-info') }}">
           <i class="bi bi-circle"></i><span> اطلاعات تماس با ما </span>
         </a>
       </li>
@@ -56,7 +56,7 @@
         </a>
       </li>
       <li>
-        <a href="forms-layouts.html">
+        <a href="{{ route('admin.shop.category.index') }}">
           <i class="bi bi-circle"></i><span> دسته بندی محصولات </span>
         </a>
       </li>

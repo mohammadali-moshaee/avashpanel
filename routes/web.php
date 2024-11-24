@@ -8,6 +8,9 @@ use App\Http\Controllers\Admin\Article\ArticleController;
 use App\Http\Controllers\Admin\ArticleCategory\ArticleCategoryController;
 use App\Http\Controllers\Admin\Keyword\KeywordController;
 use App\Http\Controllers\Admin\Log\LogController;
+use App\Http\Controllers\Admin\SocialPage\SocialPageController;
+use App\Http\Controllers\Admin\ContactInfo\ContactInfoController;
+use App\Http\Controllers\Admin\ProductCategory\CategoryController;
 
 
 Route::get('/', function () {
@@ -69,6 +72,28 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::group(['prefix' => 'logs'],function(){
         Route::get('/',[LogController::class, 'index'])->name('admin.logs');
         Route::get('/data',[LogController::class, 'getLogsDataTable'])->name('admin.logs.dataTable');
+    });
+    
+    
+    Route::group(['prefix' => 'social-pages'],function(){
+        Route::get('/',[SocialPageController::class, 'index'])->name('admin.social-pages');
+        Route::post('/update/{socialPage}',[SocialPageController::class, 'update'])->name('admin.social-pages.update');
+    });
+
+    Route::group(['prefix' => 'contact-info'],function(){
+        Route::get('/',[ContactInfoController::class, 'index'])->name('admin.contact-info');
+        Route::post('/update/{contactInfo}',[ContactInfoController::class, 'update'])->name('admin.contact-info.update');
+    });
+
+    Route::group(['prefix' => 'shop'],function(){
+        Route::group(['prefix' => 'category'],function(){
+            Route::get('/',[CategoryController::class, 'index'])->name('admin.shop.category.index');
+            Route::get('/edit/{category}',[CategoryController::class, 'edit'])->name('admin.shop.category.edit');
+            Route::put('/update/{category}',[CategoryController::class, 'update'])->name('admin.shop.category.update');
+            Route::get('/create',[CategoryController::class, 'create'])->name('admin.shop.category.create');
+            Route::post('/store',[CategoryController::class, 'store'])->name('admin.shop.category.store');
+            Route::delete('/delete/{category}',[CategoryController::class, 'destroy'])->name('admin.shop.category.delete');
+        });
     });
     
     
