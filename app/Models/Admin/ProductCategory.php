@@ -32,7 +32,14 @@ class ProductCategory extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'product_category_product', 'product_category_id', 'product_id');
+        return $this->belongsToMany(Product::class, 'product_category_association');
     }
+
+    public function attributes()
+    {
+        
+        return $this->belongsToMany(Attribute::class, 'category_attribute','attribute_id', 'category_id');
+    }
+
     
 }

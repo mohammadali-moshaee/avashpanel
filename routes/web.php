@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\Log\LogController;
 use App\Http\Controllers\Admin\SocialPage\SocialPageController;
 use App\Http\Controllers\Admin\ContactInfo\ContactInfoController;
 use App\Http\Controllers\Admin\ProductCategory\CategoryController;
+use App\Http\Controllers\Admin\Attribute\AttributeController;
+use App\Http\Controllers\Admin\Product\ProductController;
 
 
 Route::get('/', function () {
@@ -86,6 +88,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     });
 
     Route::group(['prefix' => 'shop'],function(){
+
+        // SHOP - category
         Route::group(['prefix' => 'category'],function(){
             Route::get('/',[CategoryController::class, 'index'])->name('admin.shop.category.index');
             Route::get('/edit/{category}',[CategoryController::class, 'edit'])->name('admin.shop.category.edit');
@@ -94,6 +98,32 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
             Route::post('/store',[CategoryController::class, 'store'])->name('admin.shop.category.store');
             Route::delete('/delete/{category}',[CategoryController::class, 'destroy'])->name('admin.shop.category.delete');
         });
+
+        // SHOP - attribute
+        Route::group(['prefix' => 'attribute'],function(){
+            Route::get('/',[AttributeController::class, 'index'])->name('admin.shop.attribute.index');
+            Route::get('/data',[AttributeController::class, 'getAttributesDataTable'])->name('admin.shop.attribute.dataTable');
+            Route::get('/create',[AttributeController::class, 'create'])->name('admin.shop.attribute.create');
+            Route::post('/store',[AttributeController::class, 'store'])->name('admin.shop.attribute.store');
+            Route::get('/edit/{attribute}',[AttributeController::class, 'edit'])->name('admin.shop.attribute.edit');
+            Route::put('/update/{attribute}',[AttributeController::class, 'update'])->name('admin.shop.attribute.update');
+            Route::delete('/delete/{attribute}',[AttributeController::class, 'destroy'])->name('admin.shop.attribute.delete');
+
+        });
+        
+        // SHOP - products
+        Route::group(['prefix' => 'product'],function(){
+            Route::get('/',[ProductController::class, 'index'])->name('admin.shop.product.index');
+            Route::get('/data',[ProductController::class, 'getProductsDataTable'])->name('admin.shop.product.dataTable');
+            Route::get('/create',[ProductController::class, 'create'])->name('admin.shop.product.create');
+            Route::post('/store',[ProductController::class, 'store'])->name('admin.shop.product.store');
+            Route::get('/edit/{product}',[ProductController::class, 'edit'])->name('admin.shop.product.edit');
+            Route::put('/update/{product}',[ProductController::class, 'update'])->name('admin.shop.product.update');
+            Route::delete('/delete/{product}',[ProductController::class, 'destroy'])->name('admin.shop.product.delete');
+
+        });
+
+
     });
     
     
