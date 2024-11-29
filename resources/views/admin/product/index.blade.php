@@ -51,7 +51,8 @@
                     <th>#</th>
                     <th>عنوان</th>
                     <th> دسته بندی </th>
-                    <th> گزینه ها </th>
+                    <th> وضعیت </th>
+                    <th> نویسنده </th>
                     <th> تاریخ ایجاد </th>
                     <th> عملیات </th>
                   </tr>
@@ -82,7 +83,8 @@ $(document).ready(function() {
             { data: 'id', name: 'id' },
             { data: 'name', name: 'name' },
             { data: 'categories', name: 'categories' },
-            { data: 'id', name: 'id' },
+            { data: 'published', name: 'published' },
+            { data: 'created_by', name: 'created_by' },
             { data: 'created_at', name: 'created_at' },
             {
                 data: 'action', 

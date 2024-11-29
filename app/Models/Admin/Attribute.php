@@ -15,12 +15,17 @@ class Attribute extends Model
     
     public function options()
     {
-        return $this->hasMany(AttributeOption::class);
+        return $this->hasMany(AttributeOption::class,'attribute_id');
     }
 
     public function categories()
     {
         
         return $this->belongsToMany(ProductCategory::class, 'category_attribute','attribute_id', 'category_id');
+    }
+
+    public function productValues()
+    {
+        return $this->hasMany(ProductAttributeValue::class, 'attribute_id');
     }
 }

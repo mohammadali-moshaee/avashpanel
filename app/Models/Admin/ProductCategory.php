@@ -32,7 +32,7 @@ class ProductCategory extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'product_category_association');
+        return $this->belongsToMany(Product::class, 'product_category');
     }
 
     public function attributes()

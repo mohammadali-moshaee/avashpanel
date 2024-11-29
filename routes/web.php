@@ -116,6 +116,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
             Route::get('/',[ProductController::class, 'index'])->name('admin.shop.product.index');
             Route::get('/data',[ProductController::class, 'getProductsDataTable'])->name('admin.shop.product.dataTable');
             Route::get('/create',[ProductController::class, 'create'])->name('admin.shop.product.create');
+            Route::post('/get-attributes',[ProductController::class, 'getAttributesByCategory'])->name('admin.shop.product.get-attributes');
             Route::post('/store',[ProductController::class, 'store'])->name('admin.shop.product.store');
             Route::get('/edit/{product}',[ProductController::class, 'edit'])->name('admin.shop.product.edit');
             Route::put('/update/{product}',[ProductController::class, 'update'])->name('admin.shop.product.update');

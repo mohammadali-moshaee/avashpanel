@@ -21,4 +21,9 @@ class ProductAttributeValue extends Model
     {
         return $this->belongsTo(Attribute::class);
     }
+
+    public function options()
+    {
+        return $this->belongsTo(AttributeOption::class, 'attribute_option_id');     
+    }
 }

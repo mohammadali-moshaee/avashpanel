@@ -1,28 +1,34 @@
 @extends('admin.layouts.master')
 
 
-@section('page-title') درج مشخصات جدید @endsection
+@section('page-title') درج محصول جدید @endsection
 
 
 @section('breadcrumb') 
 <nav>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">داشبورد</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('admin.articles') }}"> فروشگاه </a></li>
-        <li class="breadcrumb-item"><a href="{{ route('admin.shop.attribute.index') }}"> مشخصات دسته بندی </a></li>
-        <li class="breadcrumb-item active"> درج مشخصات جدید </li> 
+        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}"> فروشگاه </a></li>
+        <li class="breadcrumb-item"><a href="{{ route('admin.shop.product.index') }}"> مدیریت محصولات </a></li>
+        <li class="breadcrumb-item active"> درج محصول جدید </li> 
     </ol>
 </nav>
 @endsection
 
 @section('content')
+<style>
+#attributes-container > div{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+</style>
 
 <section class="section">
       <div class="row">
         <div class="col-lg-12">
           <div class="card">
             <div class="card-body">
-              <form class="form-submit" action="{{ route('admin.shop.attribute.store') }}" method="POST" enctype="multipart/form-data">
+              <form class="form-submit" action="{{ route('admin.shop.product.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @if($errors->any())
                 <div class="alert alert-danger">
@@ -41,44 +47,58 @@
                 @endif
 
                 <div class="row">
-                    <div class="col-md-6 mt-2">
+                    <div class="col-md-5 mt-2">
                         <div class="form-group">
-                            <label for="name"> عنوان مشخصه <span class="text-danger"> * </span></label>
-                            <input type="text" name="name" id="name" class="form-control mt-2" value="{{old('name')}}">
+                            <label for="name"> عنوان محصول <span class="text-danger"> * </span></label>
+                            <input type="text" name="name" id="name" class="form-control mt-2" value="{{old('name')}}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mt-2">
+                        <div class="form-group">
+                            <label for="sku"> شماره محصول </label>
+                            <input type="text" name="sku" id="sku" class="form-control mt-2 avash-direction-ltr" value="{{old('sku')}}">
+                        </div>
+                    </div>
+                    <div class="col-md-3 mt-2">
+                        <div class="form-group">
+                            <label for="price"> قیمت اصلی  <span class="text-danger"> * </span></label>
+                            <input type="text" name="price" id="price" class="form-control mt-2 avash-direction-ltr" value="{{old('price')}}" required>
                         </div>
                     </div>
                     <div class="col-md-6 mt-2">
                         <div class="form-group">
-                            <label for="categories"> دسته بندی </label>
-                            <select name="categories[]" id="categories" class="form-control mt-2" multiple="multiple" autocomplete="off">
+                            <label for="categories"> دسته بندی محصول </label>
+                            <select name="category_ids[]" id="categories" class="form-control mt-2" multiple="multiple" autocomplete="off">
                                 @foreach($productCategories as $productCategory)
-                                    <option value="{{ $productCategory->id }}"> {{ $productCategory->name }} </option>
+                                <option value="{{ $productCategory->id }}"> {{ $productCategory->name }} </option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-8 mt-2">
+                    <div class="col-md-12 mt-5">
                         <div class="form-group">
-                            <label for="title"> نوع <span class="text-danger"> * </span></label>
-                            <select id="type" class="form-control mt-2 form-select" name="type" autocomplete="off">
-                                <option value="single"> تک انتخابی </option>
-                                <option value="multiple"> چند انتخابی </option>
-                                <option value="text"> متنی </option>
+                            <label for="short_description" class="mb-3"> توضیحات کوتاه محصول </label>
+                            <textarea class="form-control mt-2 tinymce-editor" name="short_description" id="tinymce-editor" rows="5"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-12 mt-5">
+                        <div class="form-group">
+                            <label for="description" class="mb-3"> توضیحات تکمیلی محصول </label>
+                            <textarea class="form-control mt-2 tinymce-editor" name="description" id="tinymce-editor" rows="5"></textarea>
+                        </div>
+                    </div>
+                    <div id="attributes-container" class="mt-4">
+                        <!-- ویژگی‌های مربوط به دسته‌بندی‌ها در اینجا نمایش داده می‌شوند -->
+                    </div>
+                    <div class="col-md-4 mt-2">
+                        <div class="form-group">
+                            <label for="published"> وضعیت نمایش <span class="text-danger"> * </span></label>
+                            <select id="published" class="form-control mt-2 form-select" name="published" autocomplete="off">
+                                <option value="1"> منتشر شده </option>
+                                <option value="0"> عدم انتشار </option>
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-8 mt-2">
-                        <div class="form-group">
-                            <div class="mb-3" id="options-container" style="display: none;">
-                                <label class="form-label">گزینه‌ها</label>
-                                <div id="options">
-                                    
-                                </div>
-                                <button type="button" id="add-option" class="btn btn-primary">افزودن گزینه</button>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <div class="col-md-12 mt-3">
                         <div class="form-group">
                             <button type="submit" class="btn btn-success"> ذخیره </button>
@@ -100,49 +120,88 @@
 @section('script-tag')
 <script src="{{ asset('admin-assets/assets/js/select2.min.js') }}"></script>
 <script>
+    $(document).ready(function () {
     $('#categories').select2({
-            placeholder: 'انتخاب دسته‌بندی‌ها',
-            allowClear: true
-        });
-    document.addEventListener('DOMContentLoaded', function () {
-        const typeSelect = document.getElementById('type');
-        const optionsContainer = document.getElementById('options-container');
-        const addOptionBtn = document.getElementById('add-option');
-        const optionsDiv = document.getElementById('options');
-
-        // نمایش یا مخفی کردن بخش گزینه‌ها بر اساس نوع ویژگی
-        function toggleOptionsVisibility() {
-            if (typeSelect.value === 'single' || typeSelect.value === 'multiple') {
-                optionsContainer.style.display = 'block';
-            } else {
-                optionsContainer.style.display = 'none';
-            }
-        }
-
-        // رویداد تغییر نوع ویژگی
-        typeSelect.addEventListener('change', toggleOptionsVisibility);
-
-        // افزودن گزینه جدید
-        addOptionBtn.addEventListener('click', function () {
-            const optionGroup = document.createElement('div');
-            optionGroup.classList.add('input-group', 'mb-2');
-            optionGroup.innerHTML = `
-                <input type="text" name="options[]" class="form-control" placeholder="گزینه جدید" required>
-                <button type="button" class="btn btn-danger remove-option">حذف</button>
-            `;
-            optionsDiv.appendChild(optionGroup);
-        });
-
-        // حذف گزینه
-        optionsDiv.addEventListener('click', function (e) {
-            if (e.target.classList.contains('remove-option')) {
-                e.target.parentElement.remove();
-            }
-        });
-
-        // نمایش اولیه گزینه‌ها در صورت نیاز
-        toggleOptionsVisibility();
+        placeholder: 'انتخاب دسته‌بندی‌ها',
+        allowClear: true,
+        multiple: true
     });
+
+    $('#categories').change(function () {
+        const categoryIds = $(this).val();
+
+        if (categoryIds && categoryIds.length > 0) {
+            $.ajax({
+                url: '{{ route('admin.shop.product.get-attributes') }}',
+                method: 'POST',
+                data: {
+                    category_ids: categoryIds,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function (response) {
+                    $('#attributes-container').empty();
+
+                    response.forEach(attribute => {
+                        let inputField = '';
+
+                        if (attribute.type === 'text') {
+                            // فیلد متنی
+                            inputField = `
+                                <input type="text" name="attributes[${attribute.id}]" class="form-control mt-3">
+                            `;
+                        } else if (attribute.type === 'single') {
+                            // تک انتخابی (select)
+                            inputField = `
+                                <select name="attributes[${attribute.id}]" class="form-control single-select mt-3">
+                                    <option value="" disabled selected>انتخاب کنید</option>
+                                    ${attribute.options.map(option => `
+                                        <option value="${option.id}">${option.value}</option> <!-- استفاده از option.id -->
+                                    `).join('')}
+                                </select>
+                            `;
+                        } else if (attribute.type === 'multiple') {
+                            // چند انتخابی (select با multiple)
+                            inputField = `
+                                <select name="attributes[${attribute.id}][]" class="form-control multiple-select mt-3" multiple>
+                                    ${attribute.options.map(option => `
+                                        <option value="${option.id}">${option.value}</option> <!-- استفاده از option.id -->
+                                    `).join('')}
+                                </select>
+                            `;
+                        }
+
+                        // افزودن به کانتینر
+                        $('#attributes-container').append(`
+                            <div class="form-group">
+                                <label>${attribute.name}</label>
+                                ${inputField}
+                            </div>
+                        `);
+                    });
+
+                    // تبدیل فیلدهای select به Select2
+                    $('.single-select').select2({
+                        placeholder: 'انتخاب کنید',
+                        allowClear: true
+                    });
+
+                    $('.multiple-select').select2({
+                        placeholder: 'انتخاب کنید',
+                        allowClear: true
+                    });
+                },
+                error: function () {
+                    alert('خطا در دریافت ویژگی‌ها');
+                }
+            });
+        } else {
+            $('#attributes-container').empty();
+        }
+    });
+});
+
+    
+    
 </script>
 @endsection
 
