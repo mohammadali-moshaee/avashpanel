@@ -71,13 +71,13 @@
                       <label for="password" class="form-label">کلمه عبور</label>
                       <input type="password" name="password" class="form-control avash-direction-ltr" id="password" required>
                     </div>
-
+                    
                     <div class="col-12">
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe">
-                        <label class="form-check-label" for="rememberMe">دخیره سازی کلمه عبور</label>
-                      </div>
+                      <label class="mb-3"> متن امنیتی </label>
+                      <div class="g-recaptcha" data-sitekey="{{ env('NOCAPTCHA_SITEKEY') }}"></div>    
+                      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
                     </div>
+
                     <div class="col-12">
                       <button class="btn btn-primary w-100" type="submit">ورود</button>
                     </div>

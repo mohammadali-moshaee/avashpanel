@@ -40,7 +40,7 @@
                         {{ session('success') }}
                     </div>
                     @endif
-                    <form id="userForm" method="POST" action="{{ route('admin.users.update',$user->id) }}">
+                    <form class="form-submit" id="userForm" method="POST" action="{{ route('admin.users.update',$user->id) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="row">
@@ -98,6 +98,21 @@
                                         <option value="1" @if($user->status == 1) selected @endif>فعال</option>
                                         <option value="0" @if($user->status == 0) selected @endif>غیرفعال</option>
                                     </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mt-2">
+                                <div class="form-group">
+                                    <label for="pinnedPic"> تصویر کاربر </label>
+                                    @foreach($user->files as $pinFile)
+                                        @if($pinFile->pin == 1)
+                                        <br/>
+                                        <div class="d-flex flex-column w-50" id="image-{{ $pinFile->id }}">
+                                            <img src="{{ asset($pinFile->file_path) }}" />
+                                            <a href="javascript:void(0)" class="btn btn-danger remove-image" data-id="{{$pinFile->id}}">حذف تصویر</a>
+                                        </div>
+                                        @endif
+                                    @endforeach
+                                    <input type="file" name="pinnedPic" id="pinnedPic" class="form-control mt-2" accept="image/*">
                                 </div>
                             </div>
                             <div class="col-md-12 my-2">
@@ -170,6 +185,23 @@
 
 @section('script-tag')
 <script>
+    // delete image 
+    let removedImageIds = [];
+
+$('.remove-image').on('click', function () {
+    let imageId = $(this).data('id');
+    removedImageIds.push(imageId);
+    $('#image-' + imageId).remove();
+    
+});
+
+$('.form-submit').on('submit', function (e) {
+    $('<input>').attr({
+        type: 'hidden',
+        name: 'removed_images',
+        value: JSON.stringify(removedImageIds)
+    }).appendTo('.form-submit');
+});
    function moveToSelected(item) {
     const selectedPermissions = document.getElementById('selected_permissions');
     const permissionsInput = document.getElementById('permissions_input');

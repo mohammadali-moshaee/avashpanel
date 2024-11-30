@@ -157,14 +157,18 @@
     <li class="nav-item dropdown pe-3">
 
       <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-        <img src="assets/img/profile-img.jpg" alt="Profile" class="rounded-circle">
-        <span class="d-none d-md-block dropdown-toggle ps-2"> root </span>
+        @if(auth()->user()->files->count() == 0)
+        <img src="{{asset('admin-assets/assets/img/userprofile-default.jpg')}}" height="50" width="50" alt="Profile" class="rounded-circle">
+        @else
+        <img src="{{asset(auth()->user()->files[0]->file_path)}}" height="50" width="50" alt="Profile" class="rounded-circle">
+        @endif
+        <span class="d-none d-md-block dropdown-toggle ps-2"> {{ auth()->user()->username }} </span>
       </a><!-- End Profile Iamge Icon -->
 
       <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
         <li class="dropdown-header">
-          <h6> محمدعلی مشاعی </h6>
-          <span> مدیر سیستم </span>
+          <h6> {{ auth()->user()->firstname }}  {{ auth()->user()->lastname }} </h6>
+          <span> {{ auth()->user()->username }} </span>
         </li>
         <li>
           <hr class="dropdown-divider">
@@ -191,10 +195,13 @@
         </li>
 
         <li>
-          <a class="dropdown-item d-flex align-items-center" href="#">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>خروج</span>
-          </a>
+        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+          @csrf
+          <button type="submit" class="nav-link collapsed" style="background: none; border: none; padding: 10px 15px; width: 100%; text-align:right;">
+              <i class="bi bi-file-earmark" style="margin: 0 10px;"></i>
+              <span>خروج</span>
+          </button>
+      </form>
         </li>
 
       </ul><!-- End Profile Dropdown Items -->

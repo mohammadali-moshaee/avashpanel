@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Admin\User\User;
 use App\Models\Admin\Group;
 use App\Models\Admin\Permission;
+use App\Models\Admin\File;
 use App\Http\Requests\Admin\User\UserRequest;
 
 class UserController extends Controller
@@ -16,7 +17,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with('groups')->get();
+        $users = User::with('groups')->orderBy('id','desc')->get();
 
         return view('admin.users.index',compact('users'));
     }
@@ -39,6 +40,33 @@ class UserController extends Controller
         $inputs = $request->all();
         $user = User::create($inputs);
         
+        // Avatar
+        if($request->hasFile('pinnedPic')){
+            $file = $request->file('pinnedPic');
+
+            $date = now();
+            $year = $date->format('Y');
+            $month = $date->format('m');
+            $day = $date->format('d');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filePath = public_path("uploads/{$year}/{$month}/{$day}");
+            if (!file_exists($filePath)) {
+                mkdir($filePath, 0755, true);
+            }
+    
+            $file->move($filePath, $filename);
+
+            $fileRecord = new File();
+            $fileRecord->file_name = $filename;
+            $fileRecord->file_path = "uploads/{$year}/{$month}/{$day}/{$filename}";
+            $fileRecord->file_type = $file->getClientMimeType();
+            $fileRecord->fileable_type = User::class;
+            $fileRecord->pin = 1;
+            $fileRecord->fileable_id = $user->id; 
+            $fileRecord->save();
+
+        }
+
         if ($request->has('permissions')) {
             $permissions = is_array($request->input('permissions')) 
                 ? $request->input('permissions') 
@@ -92,6 +120,48 @@ class UserController extends Controller
             unset($inputs['password']);
         }
 
+
+        // remove images
+        if ($request->has('removed_images')) {
+            $removedImageIds = json_decode($request->input('removed_images'), true);
+        
+            foreach ($removedImageIds as $imageId) {
+                $file = File::find($imageId);
+                if ($file) {
+                    $filePath = public_path($file->file_path);
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                    $file->delete();
+                }
+            }
+        }
+
+        // Avatar
+        if ($request->hasFile('pinnedPic')) {
+            $file = $request->file('pinnedPic');
+            $date = now();
+            $year = $date->format('Y');
+            $month = $date->format('m');
+            $day = $date->format('d');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filePath = public_path("uploads/{$year}/{$month}/{$day}");
+            if (!file_exists($filePath)) {
+                mkdir($filePath, 0755, true);
+            }
+
+            $file->move($filePath, $filename);
+
+            $fileRecord = new File();
+            $fileRecord->file_name = $filename;
+            $fileRecord->file_path = "uploads/{$year}/{$month}/{$day}/{$filename}";
+            $fileRecord->file_type = $file->getClientMimeType();
+            $fileRecord->fileable_type = User::class;
+            $fileRecord->pin = 1;
+            $fileRecord->fileable_id = $user->id; 
+            $fileRecord->save();
+        }
+        
         if ($request->has('permissions')) {
             $permissions = is_array($request->input('permissions')) 
                 ? $request->input('permissions') 

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\LogService;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\Admin\ProductRequest;
+use App\Models\Admin\File;
 
 class ProductController extends Controller
 {
@@ -21,19 +22,30 @@ class ProductController extends Controller
      */
     public function index()
     {
-        
+        LogService::createLog(
+            'بازدید لیست محصولات',
+            'کاربر ' . Auth()->user()->username . ' صفحه لیست محصولات را بازدید کرد',
+            Product::class,
+        );    
         return view('admin.product.index');
     }
 
     public function getProductsDataTable(){
 
-        $products = Product::with(['categories','user'])->select(['id', 'name','created_at','published','created_by'])->orderBy('id','desc');
+        $products = Product::with(['categories','user','files'])->select(['id', 'name','created_at','published','created_by'])->orderBy('id','desc');
         return DataTables::of($products)
         ->addColumn('categories', function($product){
             return $product->categories->map(function($category) {
                 return '<span class="badge bg-info">' . $category->name . '</span>';
             })->implode(' ');
             
+        })
+        ->addColumn('name', function($product){
+            foreach($product->files as $pinFile){
+                if($pinFile->pin == 1){
+                    return '<img src="'.asset($pinFile->file_path).'" width="60" class="me-2" /> '.' <a href="'.route('admin.shop.product.edit',$product->id).'" >'.$product->name.'</a>';
+                }
+            }
         })
         ->addColumn('action', function($row) {
             $csrf = csrf_field(); 
@@ -72,7 +84,7 @@ class ProductController extends Controller
                 return '<span class="badge bg-danger"> عدم انتشار </span>';
             }
         })
-        ->rawColumns(['categories', 'action', 'published']) 
+        ->rawColumns(['categories', 'action', 'published', 'name']) 
         ->make(true);
     }
 
@@ -96,6 +108,13 @@ class ProductController extends Controller
     public function create()
     {
         $productCategories = ProductCategory::get();
+
+        LogService::createLog(
+            'بازدید صفحه درج محصول جدید',
+            'کاربر ' . Auth()->user()->username . ' صفحه درج محصول جدید را بازدید کرد',
+            Product::class,
+        );
+
         return view('admin.product.create',compact('productCategories'));
     }
 
@@ -112,7 +131,7 @@ class ProductController extends Controller
             'name' => $request->input('name'),
             'short_description' => $request->input('short_description'),
             'description' => $request->input('description'),
-            'price' => $request->input('price'),
+            'price' => (int) str_replace(',','', $request->input('price')),
             'created_by' => auth()->user()->id,
             'updated_by' => auth()->user()->id,
             'published' => $request->input('published'),
@@ -122,6 +141,70 @@ class ProductController extends Controller
         // ذخیره دسته‌بندی‌ها
         if (isset($request->category_ids)) {
             $product->categories()->sync($request->category_ids);
+        }
+
+        // keywords
+        if ($request->has('keywords')) {
+            foreach ($request->keywords as $keywordId) {
+                DB::table('keywordables')->insert([
+                    'keyword_id' => $keywordId,
+                    'keywordable_id' => $product->id, 
+                    'keywordable_type' => Product::class, 
+                ]);
+            }
+        }
+
+        //pictures
+        if($request->hasFile('pictures')){
+            foreach($request->file('pictures') as $file){
+                $date = now();
+                $year = $date->format('Y');
+                $month = $date->format('m');
+                $day = $date->format('d');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $filePath = public_path("uploads/{$year}/{$month}/{$day}");
+                if (!file_exists($filePath)) {
+                    mkdir($filePath, 0755, true);
+                }
+        
+                $file->move($filePath, $filename);
+
+                $fileRecord = new File();
+                $fileRecord->file_name = $filename;
+                $fileRecord->file_path = "uploads/{$year}/{$month}/{$day}/{$filename}";
+                $fileRecord->file_type = $file->getClientMimeType();
+                $fileRecord->fileable_type = Product::class;
+                $fileRecord->fileable_id = $product->id; 
+                $fileRecord->save();
+            }
+        }
+
+
+        // pinned picture
+        if($request->hasFile('pinnedPic')){
+            $file = $request->file('pinnedPic');
+
+            $date = now();
+            $year = $date->format('Y');
+            $month = $date->format('m');
+            $day = $date->format('d');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filePath = public_path("uploads/{$year}/{$month}/{$day}");
+            if (!file_exists($filePath)) {
+                mkdir($filePath, 0755, true);
+            }
+    
+            $file->move($filePath, $filename);
+
+            $fileRecord = new File();
+            $fileRecord->file_name = $filename;
+            $fileRecord->file_path = "uploads/{$year}/{$month}/{$day}/{$filename}";
+            $fileRecord->file_type = $file->getClientMimeType();
+            $fileRecord->fileable_type = Product::class;
+            $fileRecord->pin = 1;
+            $fileRecord->fileable_id = $product->id; 
+            $fileRecord->save();
+
         }
 
         $attributeReq = $request->input('attributes');
@@ -169,6 +252,12 @@ class ProductController extends Controller
         }
 
         DB::commit();
+
+        LogService::createLog(
+            'درج محصول',
+            'کاربر ' . Auth()->user()->username . ' محصول '. $product->name.' را ایجاد کرد',
+            $product
+        );
         return redirect()->route('admin.shop.product.create')->with('success', 'محصول با موفقیت ذخیره شد.');
 
     } catch (\Exception $e) {
@@ -204,12 +293,15 @@ class ProductController extends Controller
                   ->distinct();  // جلوگیری از داده‌های تکراری
         }])->get();
         
+    
         
+        
+        LogService::createLog(
+            'بازدید صفحه ویرایش محصول',
+            'کاربر ' . Auth()->user()->username . ' صفحه ویرایش محصول '.$product->name.' را بازدید کرد.',
+            $product,
+        );
 
-        //dd($attributes[1]->productValues);
-        
-        
-        
         return view('admin.product.edit',compact('productCategories','product','productCategoriesSelected','attributes'));
     }
 
@@ -228,15 +320,87 @@ class ProductController extends Controller
                 'name' => $request->input('name'),
                 'short_description' => $request->input('short_description'),
                 'description' => $request->input('description'),
-                'price' => $request->input('price'),
+                'price' => (int) str_replace(',','', $request->input('price')),
                 'updated_by' => auth()->user()->id,
                 'published' => $request->input('published'),
                 'sku' => $request->input('sku'),
             ]);
 
+
             // به‌روزرسانی دسته‌بندی‌ها
             if (isset($request->category_ids)) {
                 $product->categories()->sync($request->category_ids); // استفاده از sync برای به‌روزرسانی دسته‌بندی‌ها
+            }
+
+            // keywords
+            if ($request->has('keywords')) {
+                $product->keywords()->sync($request->keywords);
+            }
+
+            // removed images
+            if ($request->has('removed_images')) {
+                $removedImageIds = json_decode($request->input('removed_images'), true);
+            
+                foreach ($removedImageIds as $imageId) {
+                    $file = File::find($imageId);
+                    if ($file) {
+                        $filePath = public_path($file->file_path);
+                        if (file_exists($filePath)) {
+                            unlink($filePath);
+                        }
+                        $file->delete();
+                    }
+                }
+            }
+
+            // pictures
+            if ($request->hasFile('pictures')) {
+                foreach ($request->file('pictures') as $file) {
+                    $date = now();
+                    $year = $date->format('Y');
+                    $month = $date->format('m');
+                    $day = $date->format('d');
+                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $filePath = public_path("uploads/{$year}/{$month}/{$day}");
+                    if (!file_exists($filePath)) {
+                        mkdir($filePath, 0755, true);
+                    }
+            
+                    $file->move($filePath, $filename);
+
+                    $fileRecord = new File();
+                    $fileRecord->file_name = $filename;
+                    $fileRecord->file_path = "uploads/{$year}/{$month}/{$day}/{$filename}";
+                    $fileRecord->file_type = $file->getClientMimeType();
+                    $fileRecord->fileable_type = Product::class;
+                    $fileRecord->fileable_id = $product->id; 
+                    $fileRecord->save();
+                }
+            }
+            
+            // pinned picture
+            if ($request->hasFile('pinnedPic')) {
+                $file = $request->file('pinnedPic');
+                $date = now();
+                $year = $date->format('Y');
+                $month = $date->format('m');
+                $day = $date->format('d');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $filePath = public_path("uploads/{$year}/{$month}/{$day}");
+                if (!file_exists($filePath)) {
+                    mkdir($filePath, 0755, true);
+                }
+
+                $file->move($filePath, $filename);
+                
+                $fileRecord = new File();
+                $fileRecord->file_name = $filename;
+                $fileRecord->file_path = "uploads/{$year}/{$month}/{$day}/{$filename}";
+                $fileRecord->file_type = $file->getClientMimeType();
+                $fileRecord->fileable_type = Product::class;
+                $fileRecord->pin = 1;
+                $fileRecord->fileable_id = $product->id; 
+                $fileRecord->save();
             }
 
             // به‌روزرسانی ویژگی‌ها
@@ -289,11 +453,18 @@ class ProductController extends Controller
             }
 
             DB::commit();
+
+            LogService::createLog(
+                'ویرایش محصول',
+                'کاربر ' . Auth()->user()->username . ' محصول '. $product->name.' را ویرایش کرد',
+                $product
+            );
             
             return redirect()->route('admin.shop.product.edit', $product->id)->with('success', 'محصول با موفقیت به‌روزرسانی شد.');
 
         } catch (\Exception $e) {
             DB::rollBack();
+
 
             return redirect()->back()->withErrors('خطا در به‌روزرسانی: ' . $e->getMessage());
         }

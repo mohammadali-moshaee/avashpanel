@@ -52,6 +52,8 @@ class LogController extends Controller
                 $module = '<span class="badge bg-info"> ماژول تماس با ما </span>';
             }elseif($model->model_type == 'App\Models\Admin\Attribute'){
                 $module = '<span class="badge bg-info"> ماژول مشخصات دسته بندی </span>';
+            }elseif($model->model_type == 'App\Models\Admin\Product'){
+                $module = '<span class="badge bg-info"> ماژول محصولات </span>';
             }
             return $module;
         })

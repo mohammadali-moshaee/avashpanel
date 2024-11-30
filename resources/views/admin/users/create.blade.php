@@ -40,7 +40,7 @@
                         {{ session('success') }}
                     </div>
                     @endif
-                    <form id="userForm" method="POST" action="{{ route('admin.users.store') }}">
+                    <form class="form-submit" id="userForm" method="POST" action="{{ route('admin.users.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-4 my-2">
@@ -97,6 +97,13 @@
                                         <option value="1">فعال</option>
                                         <option value="0">غیرفعال</option>
                                     </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4 mt-2">
+                                <div class="form-group">
+                                    <label for="pinnedPic"> تصویر کاربر </label>
+                                    <input type="file" name="pinnedPic" id="pinnedPic" class="form-control mt-2" accept="image/*">
                                 </div>
                             </div>
                             <div class="col-md-12 my-2">

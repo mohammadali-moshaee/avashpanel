@@ -62,7 +62,7 @@
                     <div class="col-md-3 mt-2">
                         <div class="form-group">
                             <label for="price"> قیمت اصلی  <span class="text-danger"> * </span></label>
-                            <input type="text" name="price" id="price" class="form-control mt-2 avash-direction-ltr" value="{{old('price')}}" required>
+                            <input type="text" name="price" id="price" class="form-control mt-2 avash-direction-ltr amountField" value="{{old('price')}}" required>
                         </div>
                     </div>
                     <div class="col-md-6 mt-2">
@@ -97,6 +97,36 @@
                                 <option value="1"> منتشر شده </option>
                                 <option value="0"> عدم انتشار </option>
                             </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mt-2">
+                        <div class="form-group">
+                            <label for="pinnedPic"> تصویر شاخص محصول </label>
+                            <input type="file" name="pinnedPic" id="pinnedPic" class="form-control mt-2" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="col-md-4 mt-2">
+                        <div class="form-group">
+                            <label for="pictures"> گالری تصاویر محصول (میتوانید چندین عکس انتخاب کنید)</label>
+                            <input type="file" name="pictures[]" id="pictures" class="form-control mt-2" multiple accept="image/*">
+                        </div>
+                    </div>
+                    <div class="col-md-4 mt-2">
+                        <div class="form-group">
+                            <label for="seo_title"> عنوان سئو محصول </label>
+                            <input type="text" name="seo_title" id="seo_title" class="form-control mt-2" value="{{old('seo_title')}}">
+                        </div>
+                    </div>
+                    <div class="col-md-4 mt-2">
+                        <div class="form-group">
+                            <label for="seo_description"> توضیحات سئو محصول</label>
+                            <input type="text" name="seo_description" id="seo_description" class="form-control mt-2" value="{{old('seo_description')}}">
+                        </div>
+                    </div>
+                    <div class="col-md-4 mt-2">
+                        <div class="form-group">
+                            <label for="keywords"> کلمات کلیدی </label>
+                            <select name="keywords[]" id="keywords" class="form-control mt-2" multiple="multiple"></select>
                         </div>
                     </div>
                     <div class="col-md-12 mt-3">
@@ -198,6 +228,74 @@
             $('#attributes-container').empty();
         }
     });
+
+
+    $('#keywords').select2({
+            placeholder: 'کلمات کلیدی را انتخاب کنید',
+            tags: true,
+            ajax: {
+                url: '{{ route("admin.keywords.get") }}',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                        q: params.term
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: $.map(data, function(item) {
+                            return {
+                                text: item.name,
+                                id: item.id
+                            };
+                        })
+                    };
+                },
+                cache: true
+            },
+            // استفاده از tokenSeparators برای تایید تگ با کلید enter و comma
+            tokenSeparators: [',', ' ']
+        });
+        $('#keywords').on('select2:close', function() {
+            var newTags = $('#keywords').find("option[data-select2-tag='true']");
+
+            newTags.each(function() {
+                var tagText = $(this).val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route("admin.keywords.store") }}',
+                    data: {
+                        name: tagText,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        // به‌روزرسانی گزینه با ID واقعی و حذف گزینه موقت
+                        $(this).replaceWith(new Option(response.name, response.id, false, true));
+                        $('#keywords').trigger('change');
+                    }.bind(this)
+                });
+            });
+        });
+
+
+
+        function formatNumber(input) {
+            let value = input.value.replace(/,/g, '');
+            value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            input.value = value;
+        }
+
+        // انتخاب همه عناصر با کلاس 'amountField'
+        const amountFields = document.getElementsByClassName('amountField');
+
+        // افزودن رویداد به هر عنصر
+        Array.from(amountFields).forEach(function (field) {
+            field.addEventListener('input', function () {
+                formatNumber(this);
+            });
+        });
 });
 
     

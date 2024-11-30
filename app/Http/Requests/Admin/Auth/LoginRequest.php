@@ -23,7 +23,8 @@ class LoginRequest extends FormRequest
     {
         return [
             'username' => 'required|string',
-            'password' => 'required|string|min:8'
+            'password' => 'required|string|min:8',
+            'g-recaptcha-response' => 'required|captcha',
         ];
     }
 
@@ -33,6 +34,7 @@ class LoginRequest extends FormRequest
             'username.exists' => 'نام کاربری یا کلمه عبور اشتباه می باشد.',
             'password.required' => 'کلمه عبور اجباری می باشد.',
             'password.min' => 'کلمه عبور باید حداقل 8 کاراکتر باشد.',
+            'g-recaptcha-response.required' => 'لطفا کپجا را وارد کنید'
         ];
     }
 

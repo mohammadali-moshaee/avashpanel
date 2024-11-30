@@ -19,7 +19,9 @@ class Product extends Model
         'created_by',
         'updated_by',
         'published',
-        'price'
+        'price',
+        'seo_title',
+        'seo_description'
     ];
 
     public function categories()
@@ -40,6 +42,16 @@ class Product extends Model
     public function attributeValues()
     {
         return $this->hasMany(ProductAttributeValue::class);
+    }
+
+    public function files()
+    {
+        return $this->morphMany(File::class, 'fileable');
+    }
+
+    public function keywords()
+    {
+        return $this->morphToMany(Keyword::class, 'keywordable');
     }
 
 }
