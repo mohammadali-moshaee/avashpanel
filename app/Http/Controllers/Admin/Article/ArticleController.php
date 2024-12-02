@@ -99,7 +99,6 @@ class ArticleController extends Controller
      */
     public function store(ArticleRequest $request)
     {
-        dd('masha');
 
         $inputs = $request->all();
         $inputs['created_by'] = Auth()->user()->id;
