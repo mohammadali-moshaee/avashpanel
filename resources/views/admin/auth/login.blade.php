@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title> ورود به پنل مدیریت | test.com </title>
+  <title> ورود به پنل مدیریت | {{ env('APP_NAME') }} </title>
 
   <meta content="" name="description">
   <meta content="" name="keywords">
